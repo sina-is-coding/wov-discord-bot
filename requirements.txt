@@ -1,0 +1,30 @@
+# ==================================================
+# DISCORD
+# ==================================================
+discord.py          # Discord API wrapper
+
+# ==================================================
+# CONFIG & ENVIRONMENT
+# ==================================================
+python-dotenv       # Load environment variables from .env
+
+# ==================================================
+# API COMMUNICATION
+# ==================================================
+aiohttp             # Async HTTP client for external APIs
+
+# ==================================================
+# DATABASE
+# ==================================================
+pymongo             # MongoDB client
+
+# ==================================================
+# SCHEDULING / BACKGROUND TASKS
+# ==================================================
+apscheduler         # Task scheduling (e.g. reminders, jobs)
+
+# ==================================================
+# DATE & TIME
+# ==================================================
+python-dateutil     # date parsing and calculations
+pytz                # Timezone support
