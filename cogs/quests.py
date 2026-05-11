@@ -161,11 +161,11 @@ class Quests(commands.Cog):
 
     @commands.command(name="questannounce")
     @commands.has_role("Leaderteam")
-    async def quest_announcement(self, ctx, questname: str, emotes: str = "🎪📜"):
+    async def quest_announcement(self, ctx, questname: str, emotes: str = "🍃📜"):
         message = (
             f"{emotes} {questname.upper()} QUEST {emotes[::-1]}\n\n"
             f"Wir starten am Donnerstagmorgen die {questname} Quest!\n"
-            "Wenn ihr mitmachen möchtet, spendet bis dahin bitte 500 Gold! 💰🪙"   
+            "Wenn ihr mitmachen möchtet, achtet darauf, dass ihr 500 Gold auf eurem Konto habt und ihr für die Quest abgestimmt habt! 💰🪙"   
         )
         await api.send_announcement(message)
         await safe_send_channel(ctx.channel, message)
