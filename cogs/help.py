@@ -32,6 +32,9 @@ class General(commands.Cog):
                 f"`{prefix} questdeactivate` - deactivate all 🎖️\n"
                 f"`{prefix} questvote <message>` - clanchat reminder for new quests 🎖️\n"
                 f"`{prefix} questannounce <questname> [emotes]` - announce a quest 🎖️\n"
+                f"`{prefix} alwaysonlist` - show alwayson list\n"
+                f"`{prefix} setalwayson <wov_username>` - add user to always on list 🎖️\n"
+                f"`{prefix} deletealwayson <wov_username>` - delete user from always on list 🎖️\n"
             ),
             inline=False
         )
@@ -66,7 +69,7 @@ class General(commands.Cog):
         #)
 
         # footer
-        embed.set_footer(text="🎖️ = Leaderteam only | Powered by pokemosh")
+        embed.set_footer(text="🎖️ = Leaderteam only | Powered by pokemosh 💚")
         
         await safe_send_channel(ctx.channel, embed=embed)
 

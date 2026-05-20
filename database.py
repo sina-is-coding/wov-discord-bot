@@ -72,3 +72,18 @@ quests_col = db["quests"]
         #       }
 members_col = db["members"]
 # ==================================================
+
+
+# ==================================================
+# Always on
+# Stores data for clanmembers, that wish to be activated for every goldquest
+# Fields:
+# - id (string) : Wolvesville User id
+# - username (string): Wolvesville username
+        # Example: 
+        #       {
+        #       "id": "abcdefgh-ijkl-mnop-qrst-uvwxyz123456",
+        #       "username": "pokemosh"
+        #       }
+always_on_col = db["always_on_members"]
+# ==================================================

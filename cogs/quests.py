@@ -1,8 +1,8 @@
-import discord
 from discord.ext import commands
 import os
 import asyncio
 import wolvesville_api as api
+from database import always_on_col
 from utils import safe_send_channel, log_event
 
 async def questvote_weekly_reminder(bot):
@@ -118,11 +118,26 @@ class Quests(commands.Cog):
 
         quest_id = matching_quest.get("id")
         quest_name = os.path.splitext(os.path.basename(matching_quest.get("promoImageUrl", "")))[0]
+        
+        # fetch voters for this quest
         votes_response = await api.get_votes()
         votes_data = votes_response.get("votes", {})
-        participant_ids = votes_data.get(str(quest_id), [])
+        voters_ids = votes_data.get(str(quest_id), [])
 
-        if not participant_ids:
+        # check if its a goldquest
+        is_gold_quest = not matching_quest.get("purchasableWithGems", False)
+
+        if is_gold_quest:
+            # fetch always on members
+            always_on_data = list(always_on_col.find())
+            always_on_ids = [member["id"] for member in always_on_data]
+
+            # combine
+            participant_ids = list(set(voters_ids + always_on_ids))
+
+        else: 
+            participant_ids = voters_ids.copy();
+        if not voters_ids:
             await safe_send_channel(ctx.channel, f"⚠️ No one voted for `{quest_name}`.")
             return
 
@@ -133,7 +148,8 @@ class Quests(commands.Cog):
                 activated.append(f"\n`{name}`")
 
         if activated:
-            await safe_send_channel(ctx.channel, f"✅ Participants for `{quest_name}` activated: {' '.join(activated)}")
+            quest_type = "Gold Quest" if is_gold_quest else "Gem Quest"
+            await safe_send_channel(ctx.channel, f"✅ {quest_type} participants for `{quest_name}` activated: {' '.join(activated)}")
         else:
             await safe_send_channel(ctx.channel, f"❌ Error, I couldn't activate for `{quest_name}`.")
 
@@ -149,10 +165,97 @@ class Quests(commands.Cog):
         for m in members:
             if m.get("participateInClanQuests"):
                 if await api.change_quest_participation(m["playerId"], False):
-                    deactivated.append(f"`{m.get('username', 'unknown')}`")
+                    deactivated.append(f"{m.get('username', 'unknown')}")
                 await asyncio.sleep(0.2)
 
-        await safe_send_channel(ctx.channel, f"I deactivated the following members: {', `'.join(deactivated)}`")
+        await safe_send_channel(ctx.channel, "I deactivated the following members: " + ", ".join(f"`{name}`" for name in deactivated))
+
+    @commands.command(name="alwaysonlist")
+    @commands.has_role("Leaderteam")
+    async def always_on_list(self, ctx):
+
+        users = list(always_on_col.find())
+
+        if not users:
+            await safe_send_channel(
+                ctx.channel,
+                "⚠️ The always-on list is empty."
+            )
+            return
+
+        usernames = [
+            user.get("username", "unknown")
+            for user in users
+        ]
+
+        await safe_send_channel(
+            ctx.channel,
+            "## Always-on members:\n" +
+            "\n".join(f"- {username}" for username in usernames)
+        )
+
+    @commands.command(name="setalwayson")
+    @commands.has_role("Leaderteam")
+    async def set_always_on(self, ctx, username: str):
+        # fetch user id to the username
+        user = await api.search_player(username)
+        if not user:
+            await safe_send_channel(
+                ctx.channel,
+                f"❌ Could not find a player with the username `{username}`."
+            )
+            return
+
+        # check if the user is part of the clan
+        members = await api.get_members()
+        is_member = any(member.get("playerId") == user["id"] for member in members)
+
+        if not is_member:
+            await safe_send_channel(
+                ctx.channel,
+                f"⚠️ `{user['username']}` is not in the clan."
+            )
+            return
+
+        # check if the user is already on the list
+        existing_user = always_on_col.find_one({ "id": user["id"]})
+        if existing_user:
+            await safe_send_channel(
+                ctx.channel,
+                f"⚠️ `{user['username']}` is already on the always-on list."
+            )
+            return
+
+        # finally add the user to the list
+        always_on_col.insert_one({
+            "id": user["id"],
+            "username": user["username"]
+        })
+
+        await safe_send_channel(
+            ctx.channel,
+            f"✅ `{user['username']}` has been added to the always-on list."
+        )
+
+    @commands.command(name="deletealwayson")
+    @commands.has_role("Leaderteam")
+    async def delete_always_on(self, ctx, username: str):
+        user = await api.search_player(username)
+        if not user or user == []:
+            await safe_send_channel(ctx.channel, f"❌ Could not find a player with the username `{username}`.")
+            return
+        result = always_on_col.delete_one({
+            "id": user["id"]
+        })
+
+        if result.deleted_count == 0:
+            await safe_send_channel(
+                ctx.channel,
+                f"⚠️ `{user['username']}` is not on the always-on list."
+            )
+            return
+
+        await safe_send_channel(ctx.channel, f"🚮 `{user['username']}` has been removed from the always-on list.")
 
     @commands.command(name="questvote")
     @commands.has_role("Leaderteam")

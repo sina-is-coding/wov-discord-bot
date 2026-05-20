@@ -56,3 +56,6 @@ async def send_announcement(message):
     url = f"{BASE_URL}/announcements"
     res = await fetch(url, method="POST", json_data={"message": message})
     return res
+
+async def search_player(username):
+    return await fetch(f"https://api.wolvesville.com/players/search?username={username}") or []
