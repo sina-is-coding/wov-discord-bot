@@ -28,7 +28,8 @@ class General(commands.Cog):
             value=(
                 f"`{prefix} queststatus` - shows active quest\n"
                 f"`{prefix} showquests` - lists available quests\n"
-                f"`{prefix} questactivate` - activate voters 🎖️\n"
+                f"`{prefix} questactivate` - activate voters with enough gold/gems 🎖️\n"
+                f"`{prefix} questactivate --force` - activate all voters 🎖️\n"
                 f"`{prefix} questdeactivate` - deactivate all 🎖️\n"
                 f"`{prefix} questvote <message>` - clanchat reminder for new quests 🎖️\n"
                 f"`{prefix} questannounce <questname> [emotes]` - announce a quest 🎖️\n"

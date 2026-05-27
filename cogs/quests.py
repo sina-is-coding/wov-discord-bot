@@ -2,8 +2,8 @@ from discord.ext import commands
 import os
 import asyncio
 import wolvesville_api as api
-from database import always_on_col
-from utils import safe_send_channel, log_event
+from database import always_on_col, members_col
+from utils import safe_send_channel, log_event, get_gem_cost
 
 async def questvote_weekly_reminder(bot):
     print("Questvote message should be sent")
@@ -73,7 +73,17 @@ class Quests(commands.Cog):
 
     @commands.command(name="questactivate")
     @commands.has_role("Leaderteam")
-    async def quest_activate(self, ctx, *, quest_name: str = None):
+    async def quest_activate(self, ctx, *, args: str = ""):
+
+        parts = args.split()
+        force = False
+        if "--force" in parts:
+            force = True
+            parts.remove("--force")
+            await safe_send_channel(ctx.channel, "⚠️ Force mode: I will try to activate all voters, even if they don't have enough gold/gems.")
+
+        quest_name = " ".join(parts) if parts else None
+
         quests = await api.get_available_quests()
         if not quests:
             await safe_send_channel(ctx.channel, "⚠️ No quests available.")
@@ -136,14 +146,46 @@ class Quests(commands.Cog):
             participant_ids = list(set(voters_ids + always_on_ids))
 
         else: 
-            participant_ids = voters_ids.copy();
+            participant_ids = voters_ids.copy()
         if not voters_ids:
             await safe_send_channel(ctx.channel, f"⚠️ No one voted for `{quest_name}`.")
             return
 
         activated = []
+        poor_participants = []
+        if not is_gold_quest:
+            gem_cost = get_gem_cost(len(participant_ids))
+
         for pid in participant_ids:
             name = await api.fetch_player_name(pid)
+
+
+            # check the users bank account
+            member_data = members_col.find_one({"_id": pid})
+            if not member_data:
+                poor_participants.append(f"`{name}` (no bank account found)")
+                if not force:
+                    continue
+
+            # gold quest (500 Gold needed)
+            if is_gold_quest:
+                balance = member_data.get("balance_gold", 0)
+
+                if balance < 500:
+                    poor_participants.append(f"`{name}` ({balance}/500 gold)")
+                    if not force:
+                        continue
+            
+            # gem quest (variable costs)
+            else:
+                balance = member_data.get("balance_gems", 0)
+
+                if balance < gem_cost:
+                    poor_participants.append(f"`{name}` ({balance}/{gem_cost} gems)")
+                    if not force:
+                        continue
+
+            # activate in game
             if await api.change_quest_participation(pid, True):
                 activated.append(f"\n`{name}`")
 
@@ -152,6 +194,9 @@ class Quests(commands.Cog):
             await safe_send_channel(ctx.channel, f"✅ {quest_type} participants for `{quest_name}` activated: {' '.join(activated)}")
         else:
             await safe_send_channel(ctx.channel, f"❌ Error, I couldn't activate for `{quest_name}`.")
+
+        if poor_participants:
+            await safe_send_channel(ctx.channel,"⚠️ Not enough balance:\n" + "\n".join(poor_participants))
 
     @commands.command(name="questdeactivate")
     @commands.has_role("Leaderteam")

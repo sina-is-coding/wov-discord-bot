@@ -43,3 +43,25 @@ def log_event(message, level="info"):
     }
     color = colors.get(level, colors["reset"])
     print(f"{color}[{level.upper()}] {message}{colors['reset']}")
+
+def get_gem_cost(participants: int) -> int:
+    if participants <= 3:
+        return 255
+    elif participants == 4:
+        return 225
+    elif participants == 5:
+        return 205
+    elif participants == 6:
+        return 195
+    elif participants == 7:
+        return 185
+    elif participants == 8:
+        return 180
+    elif participants == 9:
+        return 175
+    elif participants <= 11:
+        return 170
+    elif participants <= 13:
+        return 165
+    else:
+        return 160
