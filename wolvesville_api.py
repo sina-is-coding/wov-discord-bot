@@ -4,58 +4,76 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.getenv("WOLVESVILLE_API_KEY")
-CLAN_ID = os.getenv("CLAN_ID")
+def get_headers():
+    """Generates fresh headers to avoid caching old API keys from .env."""
+    return {
+        "Authorization": f"Bot {os.getenv('WOLVESVILLE_API_KEY')}",
+        "Content-Type": "application/json"
+    }
 
-HEADERS = {
-    "Authorization": f"Bot {API_KEY}",
-    "Content-Type": "application/json"
-}
-BASE_URL = f"https://api.wolvesville.com/clans/{CLAN_ID}"
+def get_base_url():
+    """Generates the base URL dynamically based on CLAN_ID."""
+    return f"https://api.wolvesville.com/clans/{os.getenv('CLAN_ID')}"
 
 async def fetch(url, method="GET", json_data=None):
     async with aiohttp.ClientSession() as session:
-        try:
-            async with session.request(method, url, headers=HEADERS, json=json_data) as res:
-                if res.status == 200:
+        # raise_for_status throws an exception on bad HTTP codes (e.g., 401, 403, 500)
+        async with session.request(method, url, headers=get_headers(), json=json_data) as res:
+            res.raise_for_status()
+            
+            # Read content type to safely return JSON or empty dictionaries
+            if res.status in [200, 201]:
+                if res.content_type == "application/json":
                     return await res.json()
-                return None
-        except Exception as e:
-            print(f"API Error: {e}")
+                return {"success": True}
             return None
 
 async def get_active_quest():
-    return await fetch(f"{BASE_URL}/quests/active")
+    try: return await fetch(f"{get_base_url()}/quests/active")
+    except Exception: return None
 
 async def get_votes():
-    return await fetch(f"{BASE_URL}/quests/votes") or {}
+    try: return await fetch(f"{get_base_url()}/quests/votes") or {}
+    except Exception: return {}
 
 async def get_available_quests():
-    return await fetch(f"{BASE_URL}/quests/available") or []
+    try: return await fetch(f"{get_base_url()}/quests/available") or []
+    except Exception: return []
 
 async def get_members():
-    return await fetch(f"{BASE_URL}/members") or []
+    try: return await fetch(f"{get_base_url()}/members") or []
+    except Exception: return []
 
 async def change_quest_participation(player_id, value: bool):
-    url = f"{BASE_URL}/members/{player_id}/participateInQuests"
-    res = await fetch(url, method="PUT", json_data={"participateInQuests": value})
-    return res.get("participateInClanQuests") == value if res else False
+    try:
+        url = f"{get_base_url()}/members/{player_id}/participateInQuests"
+        res = await fetch(url, method="PUT", json_data={"participateInQuests": value})
+        return res.get("participateInClanQuests") == value if res else False
+    except Exception:
+        return False
 
 async def fetch_player_name(player_id):
-    res = await fetch(f"https://api.wolvesville.com/players/{player_id}")
-    return res.get("username", "Unknown") if res else "Unknown"
+    try:
+        res = await fetch(f"https://api.wolvesville.com/players/{player_id}")
+        return res.get("username", "Unknown") if res else "Unknown"
+    except Exception:
+        return "Unknown"
 
 async def get_clan_info():
-    return await fetch(f"{BASE_URL}/info")
+    try: return await fetch(f"{get_base_url()}/info")
+    except Exception: return None
 
 async def send_message_to_clanchat(message):
-    url = f"{BASE_URL}/chat"
-    await fetch(url, method="POST", json_data={"message": message})
+    try:
+        url = f"{get_base_url()}/chat"
+        await fetch(url, method="POST", json_data={"message": message})
+    except Exception:
+        pass
 
 async def send_announcement(message):
-    url = f"{BASE_URL}/announcements"
-    res = await fetch(url, method="POST", json_data={"message": message})
-    return res
+    url = f"{get_base_url()}/announcements"
+    return await fetch(url, method="POST", json_data={"message": message})
 
 async def search_player(username):
-    return await fetch(f"https://api.wolvesville.com/players/search?username={username}") or []
+    try: return await fetch(f"https://api.wolvesville.com/players/search?username={username}") or []
+    except Exception: return []

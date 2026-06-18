@@ -2,11 +2,11 @@ from discord.ext import commands
 import os
 import asyncio
 import wolvesville_api as api
-from database import always_on_col, members_col
+from database import always_on_col, members_col, quests_col
 from utils import safe_send_channel, log_event, get_gem_cost
+from ui.quest_elements import QuestAnnounceView
 
 async def questvote_weekly_reminder(bot):
-    print("Questvote message should be sent")
     channel_id = os.getenv("BOT_CHANNEL_ID")
     if not channel_id:
         log_event("BOT_CHANNEL_ID missing in .env", "error")
@@ -48,10 +48,10 @@ class Quests(commands.Cog):
         name = os.path.splitext(os.path.basename(quest.get("promoImageUrl", "???")))[0]
 
         msg = f"""📘 **current quest**
-        🧩 name: `{name}`
-        ⭐ tier: `{tier + 1}`
-        📊 progress: `{progress}/{xp_per}`
-        ✅ tier finished? `{"yes" if finished else "no"}`
+        questname: `{name}`
+        tier: `{tier + 1}`
+        tier progress: `{progress}/{xp_per}`
+        tier finished? `{"yes" if finished else "no"}`
         """
         await safe_send_channel(ctx.channel, msg)
 
@@ -305,19 +305,19 @@ class Quests(commands.Cog):
     @commands.command(name="questvote")
     @commands.has_role("Leaderteam")
     async def quest_vote_reminder(self, ctx):
-        questvote_weekly_reminder(self.bot)
+        await questvote_weekly_reminder(self.bot)
 
     @commands.command(name="questannounce")
     @commands.has_role("Leaderteam")
-    async def quest_announcement(self, ctx, questname: str, emotes: str = "🍃📜"):
-        message = (
-            f"{emotes} {questname.upper()} QUEST {emotes[::-1]}\n\n"
-            f"Wir starten am Donnerstagmorgen die {questname} Quest!\n"
-            "Wenn ihr mitmachen möchtet, achtet darauf, dass ihr 500 Gold auf eurem Konto habt und ihr für die Quest abgestimmt habt! 💰🪙"   
+    async def quest_announcement(self, ctx):
+        view = QuestAnnounceView(
+            ctx=ctx, 
+            api_client=api, 
+            db_collection=quests_col, 
         )
-        await api.send_announcement(message)
-        await safe_send_channel(ctx.channel, message)
-        await safe_send_channel(ctx.channel,"Announcement sent to clan.")
+    
+        embed = view.get_initial_embed()
+        await ctx.send(embed=embed, view=view)
 
 async def setup(bot):
     await bot.add_cog(Quests(bot))
