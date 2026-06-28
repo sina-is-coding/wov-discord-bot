@@ -39,6 +39,15 @@ class General(commands.Cog):
             ),
             inline=False
         )
+        #events
+        embed.add_field(
+            name="🎉 Events",
+            value=(
+                f"`{prefix} eventannounce` - announce a new event/clangame 🎖️\n"
+                # f"`{prefix} eventlist` - shows all events\n" TODO!
+            ),
+            inline=False
+        )
         # birthdays
         embed.add_field(
             name="🍾 Birthdays",

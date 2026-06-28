@@ -87,3 +87,23 @@ members_col = db["members"]
         #       }
 always_on_col = db["always_on_members"]
 # ==================================================
+
+# ==================================================
+# Events
+# Stores event plan entries 
+# Fields:
+# - title (string): Event title
+# - description (string): Event description
+# - start_time (date): Complete UTC datetime object (For sorting & database logic)
+# - day (string): Readable weekday name (For easy UI formatting)
+# - type (string): Event type ("clangame" or "event")
+        # Example:
+        #       {
+        #       "title": "Clanrunde Blau",
+        #       "description": "Clanrunde mit dem Skinmotto blau! Wir freuen uns auf euch! 🍃",
+        #       "start_time": ISODate("2026-10-15T19:00:00Z"), 
+        #       "day": "Donnerstag",
+        #       "type": "clangame"
+        #       }
+events_col = db["events"]
+# ==================================================
