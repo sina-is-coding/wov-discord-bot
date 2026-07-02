@@ -56,9 +56,9 @@ class WovBot(commands.Bot):
             args=[self],
             id="milestone_job", 
             replace_existing=True
-        )
+        )"""
         
-        # daily 9am : birthday check # NOTE : currently unused
+        # daily 9am : birthday check
         self.scheduler.add_job(
             check_todays_birthdays, 
             'cron', 
@@ -67,7 +67,7 @@ class WovBot(commands.Bot):
             args=[self], 
             id="birthday_job", 
             replace_existing=True
-        ) """
+        ) 
 
         """ daily 7am : xp report # NOTE : currently unused
         self.scheduler.add_job( 

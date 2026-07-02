@@ -211,8 +211,8 @@ async def check_todays_birthdays(bot):
 
                 embed = discord.Embed(
                     title=f"HAPPY BIRTHDAY {display_name}! 🥳🎈",
-                        description=f"🎶 Happy Birthday to You! Happy Birthday to You! Happy Birthday dear {mention}... **HAPPY BIRTHDAY TO YOU!!!** 🎶 \nWe hope you enjoy your special day!",
-                        color=discord.Colour.fuchsia()
+                        description=f"🎶 Happy Birthday to You! Happy Birthday to You! Happy Birthday dear {mention}... **HAPPY BIRTHDAY TO YOU!!!** 🎶 \n Alles Liebe zum Geburtstag, genieße deinen Tag!",
+                        color=discord.Colour.green()
                 )
                 if avatar_url:
                     embed.set_thumbnail(url=avatar_url)
