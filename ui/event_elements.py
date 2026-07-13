@@ -159,7 +159,7 @@ class EventAnnounceView(BaseAnnouncementView):
         # title string generation based on the types of events
         title_parts = []
         if has_clangame:
-            title_parts.append(f"CLANRUNDE {current_calweek}")
+            title_parts.append(f"CLANRUNDE KW{current_calweek}")
         if has_event:
             title_parts.append("NEUES EVENT")
 
