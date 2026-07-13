@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 class BaseAnnouncementView(discord.ui.View):
     def __init__(self, ctx, api_client, db_collection, title_name: str):
-        super().__init__(timeout=300)
+        super().__init__(timeout=1800) # 30 mins
         self.ctx = ctx
         self.api_client = api_client
         self.db_col = db_collection
