@@ -31,11 +31,20 @@ class General(commands.Cog):
                 f"`{prefix} questactivate` - activate voters with enough gold/gems 🎖️\n"
                 f"`{prefix} questactivate --force` - activate all voters 🎖️\n"
                 f"`{prefix} questdeactivate` - deactivate all 🎖️\n"
-                f"`{prefix} questvote <message>` - clanchat reminder for new quests 🎖️\n"
-                f"`{prefix} questannounce <questname> [emotes]` - announce a quest 🎖️\n"
+                f"`{prefix} questvote` - clanchat reminder for new quests 🎖️\n"
+                f"`{prefix} questannounce` - announce quests 🎖️\n"
                 f"`{prefix} alwaysonlist` - show alwayson list\n"
                 f"`{prefix} setalwayson <wov_username>` - add user to always on list 🎖️\n"
                 f"`{prefix} deletealwayson <wov_username>` - delete user from always on list 🎖️\n"
+            ),
+            inline=False
+        )
+        #events
+        embed.add_field(
+            name="🎉 Events",
+            value=(
+                f"`{prefix} eventannounce` - announce a new event/clangame 🎖️\n"
+                # f"`{prefix} eventlist` - shows all events\n" TODO!
             ),
             inline=False
         )

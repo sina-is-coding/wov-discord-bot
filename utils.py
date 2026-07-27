@@ -65,3 +65,47 @@ def get_gem_cost(participants: int) -> int:
         return 165
     else:
         return 160
+    
+def get_full_day_name(day_text: str):
+    '''translate abbreviations to full day names (GER)'''
+    abbreviations = {
+        "Mo": "Montag", 
+        "Di": "Dienstag", 
+        "Mi": "Mittwoch", 
+        "Do": "Donnerstag", 
+        "Fr": "Freitag", 
+        "Sa": "Samstag", 
+        "So": "Sonntag"
+    }
+    
+    daysofweek = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
+    
+    clean_text = day_text.strip().capitalize()
+    
+    if clean_text in abbreviations:
+        return abbreviations[clean_text]
+        
+    if clean_text in daysofweek:
+        return clean_text
+        
+    # incorrect input
+    return None
+
+def get_prevday(day_text: str):
+    ''' calculate the previous day of the week based on the given day name (GER)'''
+    full_day = get_full_day_name(day_text)
+
+    if full_day is None:
+        return None
+        
+    vortage = {
+        "Montag": "Sonntag",
+        "Dienstag": "Montag",
+        "Mittwoch": "Dienstag",
+        "Donnerstag": "Mittwoch",
+        "Freitag": "Donnerstag",
+        "Samstag": "Freitag",
+        "Sonntag": "Samstag"
+    }
+    
+    return vortage[full_day]
