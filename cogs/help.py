@@ -62,6 +62,21 @@ class General(commands.Cog):
             inline=False
         )
 
+        # accounts
+        embed.add_field(
+            name="💰 Accounts",
+            value=(
+                f"`{prefix} balance <wov_username>` - show gem & gold balance\n"
+                f"`{prefix} addgold <wov_username> <amount>` - add gold to user's balance 🎖️\n"
+                f"`{prefix} removegold <wov_username> <amount>` - remove gold from user's balance 🎖️\n"
+                f"`{prefix} addgems <wov_username> <amount>` - add gems to user's balance 🎖️\n"
+                f"`{prefix} removegems <wov_username> <amount>` - remove gems from user's balance 🎖️\n"
+                f"`{prefix} transfergold <sender> <recipient> <amount>` - transfer gold 🎖️\n"
+                f"`{prefix} transfergems <sender> <recipient> <amount>` - transfer gems 🎖️\n"
+            ),
+            inline=False
+        )
+
         # milestones
         # embed.add_field(
         #    name="🎉 Milestones",
