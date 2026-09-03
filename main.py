@@ -106,6 +106,8 @@ class WovBot(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await safe_send_channel(ctx.channel, "❗ This command is missing an argument.")
+        elif isinstance(error, commands.BadArgument):
+            await safe_send_channel(ctx.channel, "❗ One or more arguments are invalid.")
         elif isinstance(error, commands.MissingRole):
             await safe_send_channel(ctx.channel, "❗ You don't have the required role to use this command.")
         elif isinstance(error, commands.CommandNotFound):
