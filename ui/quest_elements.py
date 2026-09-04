@@ -67,28 +67,38 @@ class QuestAnnounceView(BaseAnnouncementView):
         emoji = "💰" if item["type"] == "Gold" else "💎"
         return f"• **{item['day']}**: {item['name']} ({emoji})\n"
 
+    def split_quest_name_and_emojis(self, raw_input: str) -> tuple:
+        name = raw_input.strip()
+        match = re.match(r"^(.*\w)(\W*)$", name)
+        if match:
+            quest_name = match.group(1)
+            emojis = match.group(2).strip()
+        else:
+            quest_name = name
+            emojis = ""
+        return quest_name, emojis
+
     def generate_final_message(self) -> str:
-        """generates the final announcement text for the community post based on collected quest entries."""
-        # calculate current calendar week (ISO standard)
+        """generates the final announcement text for the community post."""
         current_calweek = datetime.now(timezone.utc).isocalendar()[1]
         quest_lines = []
 
-        # generate lines for each quest entry, including day, name, and type
         for q in self.items:
             start_tag = q["day"]
             prev_day = q["prevday"]
-            
+            quest_name, emojis = self.split_quest_name_and_emojis(q["name"])
+
             if q["type"] == "Gold":
-                line = f"{start_tag.upper()}: {q['name']}-Goldquest (500 Gold 💰)"
+                line = f"{start_tag.upper()}: {quest_name}-Goldquest {emojis}"
             else:
-                line = f"{start_tag.upper()}: {q['name']}-Gemquest (💎-Kosten werden am {prev_day.upper()} festgelegt)"
+                line = f"{start_tag.upper()}: {quest_name}-Gemquest {emojis} \n(💎-Kosten werden am {prev_day.upper()} festgelegt)"
+
             quest_lines.append(line)
 
-        # assemble the final public community post
         return (
             f"🍃 QUESTPLAN KW {current_calweek} 🍃\n\n"
             + "\n".join(quest_lines) + "\n\n"
-            + "Wenn ihr mitmachen möchtet, achtet darauf, dass ihr das nötige Guthaben auf eurem Konto habt und ihr für die Quest abgestimmt habt! 🤞"
+            + "Wenn ihr mitmachen möchtet, stimmt bitte für die jeweiligen Quests ab und spendet 500 Gold pro Goldquest 💰🤞"
         )
 
     def prepare_db_documents(self, current_calweek: int) -> list:
